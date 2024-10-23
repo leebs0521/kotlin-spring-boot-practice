@@ -2,7 +2,7 @@ package com.example.simpleblog.common.auth.handler
 
 import com.example.simpleblog.common.auth.JwtManger
 import com.example.simpleblog.common.auth.PrincipalDetails
-import com.example.simpleblog.common.response.CmResDto
+import com.example.simpleblog.common.response.ApiResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -29,7 +29,7 @@ class LoginSuccessHandler(
     response.setHeader(jwtManger.accessTokenHeader, jwtManger.bearerPrefix + generateAccessToken)
 
     response.status = HttpServletResponse.SC_OK
-    val resDto = CmResDto(HttpStatus.OK, "login success", null)
+    val resDto = ApiResponse.of(HttpStatus.OK, "login success", null)
     response.characterEncoding = "UTF-8"
     response.contentType = "application/json;charset=UTF-8"
     response.writer.write(objectMapper.writeValueAsString(resDto));

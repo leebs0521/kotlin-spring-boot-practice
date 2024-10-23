@@ -37,16 +37,6 @@ class Member(
   }
 }
 
-fun Member.toDto(): MemberRes {
-  return MemberRes(
-      id = this.id!!,
-      email = this.email,
-      password = this.password,
-      role = this.role
-  )
-}
-
-
 enum class Role {
   USER, ADMIN
 }

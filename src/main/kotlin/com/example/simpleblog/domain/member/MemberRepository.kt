@@ -12,13 +12,13 @@ import org.springframework.data.support.PageableExecutionUtils
 
 interface MemberRepository : JpaRepository<Member, Long>, MemberCustomRepository {
 
-
+  fun existsByEmail(email: String): Boolean
 }
 
 interface MemberCustomRepository {
 
   fun findMembers(pageable: Pageable): Page<Member>
-  fun findByEmail(email: String): Member
+  fun findByEmail(email: String): Member?
 }
 
 class MemberCustomRepositoryImpl(
@@ -42,7 +42,7 @@ class MemberCustomRepositoryImpl(
     return PageableExecutionUtils.getPage(results, pageable, countQuery.size::toLong)
   }
 
-  override fun findByEmail(email: String): Member {
+  override fun findByEmail(email: String): Member? {
     return queryFactory.singleQuery<Member> {
       select(entity(Member::class))
       from(entity(Member::class))

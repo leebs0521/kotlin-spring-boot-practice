@@ -1,29 +1,40 @@
 package com.example.simpleblog.domain.post
 
 import com.example.simpleblog.domain.member.Member
-import com.example.simpleblog.domain.member.MemberRes
+import com.example.simpleblog.domain.member.MemberResponseDto
 import jakarta.validation.constraints.NotNull
 
-data class PostSaveReq (
+data class PostSaveRequestDto(
 
     @field:NotNull(message = "require title")
     val title: String?,
     val content: String,
     @field:NotNull(message = "require memberId")
     val memberId: Long?
-)
-
-fun PostSaveReq.toEntity(): Post {
-  return Post(
-      title = this.title?: "",
-      content = this.content,
-      member = Member.createFakerMember(this.memberId?: 0)
-  )
+) {
+  fun toEntity(member: Member): Post {
+    return Post(
+        title = this.title ?: "",
+        content = this.content,
+        member = member
+    )
+  }
 }
 
-data class PostRes(
+data class PostResponseDto(
     val id: Long,
     val title: String,
     val content: String,
-    val member: MemberRes
-)
+    val member: MemberResponseDto
+) {
+  companion object {
+    fun from(post: Post): PostResponseDto {
+      return PostResponseDto(
+          id = post.id!!,
+          title = post.title,
+          content = post.content,
+          member = MemberResponseDto.from(post.member)
+      )
+    }
+  }
+}

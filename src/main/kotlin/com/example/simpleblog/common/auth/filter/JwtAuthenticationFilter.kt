@@ -2,6 +2,8 @@ package com.example.simpleblog.common.auth.filter
 
 import com.example.simpleblog.common.auth.JwtManger
 import com.example.simpleblog.common.auth.PrincipalDetails
+import com.example.simpleblog.common.exception.BusinessException
+import com.example.simpleblog.common.exception.ErrorCode.NOT_FOUND_MEMBER
 import com.example.simpleblog.domain.member.MemberRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -18,6 +20,7 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
   private val log = LoggerFactory.getLogger(this::class.java)
 
+  @Throws(BusinessException::class)
   override fun doFilterInternal(
       request: HttpServletRequest,
       response: HttpServletResponse,
@@ -36,7 +39,7 @@ class JwtAuthenticationFilter(
     if (jwtManger.validateToken(accessToken)) {
 
       val memberEmail = jwtManger.getMemberEmail(accessToken)
-      val member = memberRepository.findByEmail(memberEmail)
+      val member = memberRepository.findByEmail(memberEmail) ?: throw BusinessException(NOT_FOUND_MEMBER)
       val principalDetails = PrincipalDetails(member)
 
       val authentication: Authentication = UsernamePasswordAuthenticationToken(
@@ -49,5 +52,6 @@ class JwtAuthenticationFilter(
 
       filterChain.doFilter(request, response)
     }
+
   }
 }

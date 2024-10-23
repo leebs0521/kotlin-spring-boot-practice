@@ -16,8 +16,8 @@ class AuthService(
 
   override fun loadUserByUsername(email: String): UserDetails {
 
-    val member = memberRepository.findByEmail(email)
+    val member = memberRepository.findByEmail(email) ?: throw RuntimeException("member not found!")
 
-    if(member != null) return PrincipalDetails(member) else throw RuntimeException("member not found!")
+    return PrincipalDetails(member)
   }
 }

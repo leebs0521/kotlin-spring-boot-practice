@@ -1,6 +1,6 @@
 package com.example.simpleblog.common.auth.filter
 
-import com.example.simpleblog.domain.member.LoginDto
+import com.example.simpleblog.domain.member.MemberLoginRequestDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -20,7 +20,7 @@ class LoginFilter(
       response: HttpServletResponse
   ): Authentication {
 
-    val loginDto = objectMapper.readValue(request.inputStream, LoginDto::class.java)
+    val loginDto = objectMapper.readValue(request.inputStream, MemberLoginRequestDto::class.java)
     log.info("로그인 시도 유저: ${loginDto.email}")
 
     val authenticationToken = UsernamePasswordAuthenticationToken(loginDto.email, loginDto.password)

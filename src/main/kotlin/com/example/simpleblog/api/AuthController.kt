@@ -1,23 +1,29 @@
 package com.example.simpleblog.api
 
-import com.example.simpleblog.domain.member.MemberSaveReq
+import com.example.simpleblog.common.response.ApiResponse
+import com.example.simpleblog.domain.member.MemberSaveRequestDto
+import com.example.simpleblog.service.MemberService
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RestController
 class AuthController(
-
+    private val memberService: MemberService
 ) {
-  val log = LoggerFactory.getLogger(this::class.java)
 
   @GetMapping("/login")
-  fun login(@Valid @RequestBody memberSaveReq: MemberSaveReq) {
-
+  fun login(@Valid @RequestBody memberSaveReq: MemberSaveRequestDto) {
+    // login
   }
 
+  @PostMapping("/signup")
+  fun register(@RequestBody @Valid dto: MemberSaveRequestDto): ResponseEntity<*> {
+    val member = memberService.saveMember(dto)
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+        ApiResponse.of(HttpStatus.CREATED, "save member", member)
+    )
+  }
 }

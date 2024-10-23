@@ -1,17 +1,8 @@
 package com.example.simpleblog.common.exception
 
-sealed class BusinessException : RuntimeException {
+class BusinessException(
+    private val errorCode: ErrorCode
+) : RuntimeException(errorCode.message) {
 
-  private var errorCode: ErrorCode
-    get() {
-      return errorCode
-    }
 
-  constructor(errorCode: ErrorCode) : super(errorCode.message) {
-    this.errorCode = errorCode
-  }
-
-  constructor(message: String, errorCode: ErrorCode) : super(message) {
-    this.errorCode = errorCode
-  }
 }

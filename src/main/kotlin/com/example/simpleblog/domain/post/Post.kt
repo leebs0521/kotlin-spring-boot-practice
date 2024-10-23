@@ -2,7 +2,6 @@ package com.example.simpleblog.domain.post
 
 import com.example.simpleblog.domain.AuditingEntity
 import com.example.simpleblog.domain.member.Member
-import com.example.simpleblog.domain.member.toDto
 import jakarta.persistence.*
 
 @Entity
@@ -25,11 +24,3 @@ class Post(
   var member: Member = member
     protected set
 }
-
-fun Post.toDto(): PostRes =
-    PostRes(
-        id = this.id!!,
-        title = this.title,
-        content = this.content,
-        member = this.member.toDto()
-    )

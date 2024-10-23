@@ -1,19 +1,12 @@
 package com.example.simpleblog.api
 
-import com.example.simpleblog.domain.member.MemberSaveReq
+import com.example.simpleblog.common.response.ApiResponse
 import com.example.simpleblog.service.MemberService
-import com.example.simpleblog.common.response.CmResDto
-import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1")
@@ -22,18 +15,27 @@ class MemberController(
 ) {
 
   @GetMapping("/members")
-  fun findAll(@PageableDefault(size = 10) pageable: Pageable): CmResDto<*> {
-    return CmResDto(HttpStatus.OK, "find All Members", memberService.findAll(pageable))
+  fun findAll(@PageableDefault(size = 10) pageable: Pageable): ResponseEntity<*> {
+
+    val members = memberService.findAll(pageable)
+    return ResponseEntity.ok(ApiResponse.ok("find all members", members))
   }
 
   @GetMapping("/member/{id}")
-  fun findById(@PathVariable id: Long): CmResDto<Any> {
-    return CmResDto(HttpStatus.OK, "find Member by id", memberService.findMemberById(id))
+  fun findById(@PathVariable id: Long): ResponseEntity<*> {
+    val member = memberService.findMemberById(id)
+
+    return ResponseEntity.ok(ApiResponse.ok("find Member by id: $id", member))
   }
 
   @DeleteMapping("/member/{id}")
-  fun deleteById(@PathVariable id: Long): CmResDto<Any> {
-    return CmResDto(HttpStatus.OK, "delete Member by id", memberService.deleteMember(id))
+  fun deleteById(@PathVariable id: Long): ResponseEntity<*> {
+
+    memberService.deleteMember(id)
+
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+        ApiResponse.of(HttpStatus.NO_CONTENT, "delete member by id: $id", null)
+    )
   }
 
 }
