@@ -1,5 +1,6 @@
 package com.example.simpleblog.common.response
 
+import com.example.simpleblog.common.exception.BusinessException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindException
@@ -13,10 +14,21 @@ class ApiControllerAdvice {
     return ResponseEntity.badRequest()
         .body(
             ApiResponse.of(
-                status = HttpStatus.BAD_REQUEST,
-                message = e.bindingResult.allErrors[0].defaultMessage.toString(),
-                data = null
-            ))
+                HttpStatus.BAD_REQUEST,
+                e.bindingResult.allErrors[0].defaultMessage.toString(),
+            )
+        )
+  }
+
+  @ExceptionHandler(BusinessException::class)
+  fun businessException(e: BusinessException): ResponseEntity<*> {
+    return ResponseEntity.status(e.errorCode.code)
+        .body(
+            ApiResponse.of(
+                e.errorCode.code,
+                e.errorCode.message
+            )
+        )
   }
 
 }
