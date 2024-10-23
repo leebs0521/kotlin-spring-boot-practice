@@ -91,7 +91,7 @@ class SecurityConfig(
     loginFilter.setAuthenticationManager(authenticationManger())
     loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler())
     loginFilter.setAuthenticationFailureHandler(loginFailureHandler())
-    loginFilter.setFilterProcessesUrl("/login")
+    loginFilter.setFilterProcessesUrl("/auth/login")
 
     return loginFilter
   }
