@@ -18,13 +18,19 @@ class LoginFailureHandler(
   override fun onAuthenticationFailure(
       request: HttpServletRequest,
       response: HttpServletResponse,
-      exception: AuthenticationException) {
-
+      exception: AuthenticationException
+  ) {
     log.info("로그인 실패")
-    response.status = HttpServletResponse.SC_BAD_REQUEST
-    val resDto = ApiResponse.of(HttpStatus.BAD_REQUEST, "login failed", null)
+
+    setResponse(response, HttpStatus.BAD_REQUEST, "login failed")
+  }
+
+  private fun setResponse(response: HttpServletResponse, status: HttpStatus, message: String) {
+    response.status = status.value()
     response.characterEncoding = "UTF-8"
     response.contentType = "application/json;charset=UTF-8"
-    response.writer.write(objectMapper.writeValueAsString(resDto));
+
+    val apiResponse = ApiResponse.of(status, message, null)
+    response.writer.write(objectMapper.writeValueAsString(apiResponse))
   }
 }

@@ -29,23 +29,26 @@ class JwtExceptionFilter(
   }
 
   private fun handleJwtException(response: HttpServletResponse, exception: JwtException) {
-    val errorCode = when (exception.message) {
+    val errorCode = mapToErrorCode(exception.message)
+    setResponse(response, errorCode)
+  }
+
+  private fun mapToErrorCode(message: String?): ErrorCode {
+    return when (message) {
       ErrorCode.UNKNOWN_ERROR.message -> ErrorCode.UNKNOWN_ERROR
       ErrorCode.WRONG_TYPE_TOKEN.message -> ErrorCode.WRONG_TYPE_TOKEN
       ErrorCode.EXPIRED_TOKEN.message -> ErrorCode.EXPIRED_TOKEN
       ErrorCode.UNSUPPORTED_TOKEN.message -> ErrorCode.UNSUPPORTED_TOKEN
       else -> ErrorCode.ACCESS_DENIED
     }
-    setResponse(response, errorCode)
   }
 
   @Throws(RuntimeException::class, IOException::class)
   private fun setResponse(response: HttpServletResponse, errorCode: ErrorCode) {
     response.status = SC_UNAUTHORIZED
-    val cmResDto = ApiResponse.of(UNAUTHORIZED, errorCode.message, null)
+    val apiResponse = ApiResponse.of(UNAUTHORIZED, errorCode.message, null)
     response.characterEncoding = "UTF-8"
     response.contentType = "application/json;charset=UTF-8"
-    response.writer.print(objectMapper.writeValueAsString(cmResDto))
+    response.writer.print(objectMapper.writeValueAsString(apiResponse))
   }
-
 }

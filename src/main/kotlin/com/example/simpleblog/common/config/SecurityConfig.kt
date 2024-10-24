@@ -1,10 +1,11 @@
 package com.example.simpleblog.common.config
 
-import com.example.simpleblog.common.auth.JwtManger
+import com.example.simpleblog.common.auth.jwt.JwtProvider
 import com.example.simpleblog.common.auth.filter.JwtAuthenticationFilter
 import com.example.simpleblog.common.auth.filter.JwtExceptionFilter
 import com.example.simpleblog.common.auth.filter.LoginFilter
 import com.example.simpleblog.common.auth.handler.CustomAccessDeniedHandler
+import com.example.simpleblog.common.auth.handler.CustomLogoutSuccessHandler
 import com.example.simpleblog.common.auth.handler.LoginFailureHandler
 import com.example.simpleblog.common.auth.handler.LoginSuccessHandler
 import com.example.simpleblog.domain.member.MemberRepository
@@ -32,7 +33,7 @@ class SecurityConfig(
     private val authService: AuthService,
     private val memberRepository: MemberRepository,
     private val objectMapper: ObjectMapper,
-    private val jwtManger: JwtManger,
+    private val jwtManger: JwtProvider,
 ) {
 
   @Bean
@@ -52,10 +53,15 @@ class SecurityConfig(
               .requestMatchers("/static/**", "/templates/**").permitAll()
               .requestMatchers("/admin-test").hasRole("ADMIN")
               .requestMatchers("/api/v1/**").authenticated()
+              .requestMatchers("/api/auth/login", "/api/auth/reissue").permitAll()
               .anyRequest().authenticated()
         }
         .cors {
           this.corsConfig()
+        }
+        .logout {
+          it.logoutUrl("/api/auth/logout")
+          it.logoutSuccessHandler(logoutSuccessHandler())
         }
         .exceptionHandling {
           it.accessDeniedHandler(customAccessDeniedHandler())
@@ -104,6 +110,11 @@ class SecurityConfig(
   @Bean
   fun loginFailureHandler(): LoginFailureHandler {
     return LoginFailureHandler(objectMapper)
+  }
+
+  @Bean
+  fun logoutSuccessHandler(): CustomLogoutSuccessHandler {
+    return CustomLogoutSuccessHandler(objectMapper)
   }
 
   @Bean

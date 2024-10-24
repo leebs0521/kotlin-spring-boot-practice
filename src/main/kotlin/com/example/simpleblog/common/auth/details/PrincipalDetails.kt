@@ -1,4 +1,4 @@
-package com.example.simpleblog.common.auth
+package com.example.simpleblog.common.auth.details
 
 import com.example.simpleblog.domain.member.Member
 import org.slf4j.LoggerFactory

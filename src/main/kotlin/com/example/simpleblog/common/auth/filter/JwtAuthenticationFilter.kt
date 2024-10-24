@@ -1,9 +1,10 @@
 package com.example.simpleblog.common.auth.filter
 
-import com.example.simpleblog.common.auth.JwtManger
-import com.example.simpleblog.common.auth.PrincipalDetails
+import com.example.simpleblog.common.auth.jwt.JwtProvider
+import com.example.simpleblog.common.auth.details.PrincipalDetails
 import com.example.simpleblog.common.exception.BusinessException
 import com.example.simpleblog.common.exception.ErrorCode.NOT_FOUND_MEMBER
+import com.example.simpleblog.domain.member.Member
 import com.example.simpleblog.domain.member.MemberRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -16,42 +17,49 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class JwtAuthenticationFilter(
     private val memberRepository: MemberRepository,
-    private val jwtManger: JwtManger
+    private val jwtProvider: JwtProvider
 ) : OncePerRequestFilter() {
+
   private val log = LoggerFactory.getLogger(this::class.java)
 
   @Throws(BusinessException::class)
   override fun doFilterInternal(
       request: HttpServletRequest,
       response: HttpServletResponse,
-      filterChain: FilterChain) {
-
+      filterChain: FilterChain
+  ) {
     log.info("인증 요청 시도")
 
-    val header = request.getHeader(jwtManger.accessTokenHeader)
-    if (header == null) {
+    val accessToken = extractAccessToken(request) ?: run {
       filterChain.doFilter(request, response)
       return
     }
 
-    val accessToken = header.replace(jwtManger.bearerPrefix, "")
+    if (jwtProvider.validateToken(accessToken)) {
+      val memberEmail = jwtProvider.getUsername(accessToken)
+      val member = memberRepository.findByEmail(memberEmail)
+          ?: throw BusinessException(NOT_FOUND_MEMBER)
 
-    if (jwtManger.validateToken(accessToken)) {
-
-      val memberEmail = jwtManger.getMemberEmail(accessToken)
-      val member = memberRepository.findByEmail(memberEmail) ?: throw BusinessException(NOT_FOUND_MEMBER)
-      val principalDetails = PrincipalDetails(member)
-
-      val authentication: Authentication = UsernamePasswordAuthenticationToken(
-          principalDetails,
-          principalDetails.password,
-          principalDetails.authorities
-      )
-
-      SecurityContextHolder.getContext().authentication = authentication
-
-      filterChain.doFilter(request, response)
+      setAuthentication(member)
     }
 
+    filterChain.doFilter(request, response)
+  }
+
+  private fun extractAccessToken(request: HttpServletRequest): String? {
+    val header = request.getHeader(jwtProvider.accessHeader)
+    return header?.replace(jwtProvider.bearerPrefix, "")
+  }
+
+  private fun setAuthentication(member: Member) {
+    val principalDetails = PrincipalDetails(member)
+
+    val authentication: Authentication = UsernamePasswordAuthenticationToken(
+        principalDetails,
+        principalDetails.password,
+        principalDetails.authorities
+    )
+
+    SecurityContextHolder.getContext().authentication = authentication
   }
 }

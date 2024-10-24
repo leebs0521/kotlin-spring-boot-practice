@@ -19,12 +19,19 @@ class LoginFilter(
       request: HttpServletRequest,
       response: HttpServletResponse
   ): Authentication {
-
-    val loginDto = objectMapper.readValue(request.inputStream, MemberLoginRequestDto::class.java)
+    val loginDto = parseLoginRequest(request)
     log.info("로그인 시도 유저: ${loginDto.email}")
 
-    val authenticationToken = UsernamePasswordAuthenticationToken(loginDto.email, loginDto.password)
+    val authenticationToken = createAuthenticationToken(loginDto)
 
     return this.authenticationManager.authenticate(authenticationToken)
+  }
+
+  private fun parseLoginRequest(request: HttpServletRequest): MemberLoginRequestDto {
+    return objectMapper.readValue(request.inputStream, MemberLoginRequestDto::class.java)
+  }
+
+  private fun createAuthenticationToken(loginDto: MemberLoginRequestDto): UsernamePasswordAuthenticationToken {
+    return UsernamePasswordAuthenticationToken(loginDto.email, loginDto.password)
   }
 }
