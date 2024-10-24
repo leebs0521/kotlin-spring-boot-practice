@@ -9,7 +9,7 @@ import com.example.simpleblog.common.auth.handler.CustomLogoutSuccessHandler
 import com.example.simpleblog.common.auth.handler.LoginFailureHandler
 import com.example.simpleblog.common.auth.handler.LoginSuccessHandler
 import com.example.simpleblog.domain.member.MemberRepository
-import com.example.simpleblog.service.AuthService
+import com.example.simpleblog.common.auth.details.CustomUserDetailService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,7 +30,7 @@ import org.springframework.web.cors.CorsConfiguration
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val authService: AuthService,
+    private val userDetailService: CustomUserDetailService,
     private val memberRepository: MemberRepository,
     private val objectMapper: ObjectMapper,
     private val jwtManger: JwtProvider,
@@ -82,7 +82,7 @@ class SecurityConfig(
   fun authenticationManger(): AuthenticationManager {
     val provider = DaoAuthenticationProvider()
     provider.setPasswordEncoder(passwordEncoder())
-    provider.setUserDetailsService(authService)
+    provider.setUserDetailsService(userDetailService)
     return ProviderManager(provider)
   }
 

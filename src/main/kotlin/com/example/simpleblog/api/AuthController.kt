@@ -2,7 +2,7 @@ package com.example.simpleblog.api
 
 import com.example.simpleblog.common.response.ApiResponse
 import com.example.simpleblog.domain.member.MemberSaveRequestDto
-import com.example.simpleblog.service.AuthService
+import com.example.simpleblog.service.MemberService
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/auth")
 @RestController
 class AuthController(
-    private val authService: AuthService
+    private val memberService: MemberService
 ) {
 
   @GetMapping("/login")
@@ -28,7 +28,7 @@ class AuthController(
 
   @PostMapping("/signup")
   fun register(@RequestBody @Valid dto: MemberSaveRequestDto): ResponseEntity<*> {
-    val member = authService.saveMember(dto)
+    val member = memberService.saveMember(dto)
     return ResponseEntity.status(HttpStatus.CREATED).body(
         ApiResponse.of(HttpStatus.CREATED, "save member", member)
     )
@@ -37,7 +37,7 @@ class AuthController(
   @GetMapping("/reissue")
   fun reissueAccessToken(@CookieValue(value = "Authorization-refresh", defaultValue = "") refreshToken: String,
                          response: HttpServletResponse): ResponseEntity<*> {
-    authService.reIssueAccessToken(response, refreshToken)
+    memberService.reIssueAccessToken(response, refreshToken)
     return ResponseEntity.ok().body(ApiResponse.ok("AccessToken 재발급 성공", null))
   }
 }

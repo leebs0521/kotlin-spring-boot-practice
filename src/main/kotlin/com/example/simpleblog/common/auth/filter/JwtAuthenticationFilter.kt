@@ -1,7 +1,7 @@
 package com.example.simpleblog.common.auth.filter
 
 import com.example.simpleblog.common.auth.jwt.JwtProvider
-import com.example.simpleblog.common.auth.details.PrincipalDetails
+import com.example.simpleblog.common.auth.details.CustomUserDetails
 import com.example.simpleblog.common.exception.BusinessException
 import com.example.simpleblog.common.exception.ErrorCode.NOT_FOUND_MEMBER
 import com.example.simpleblog.domain.member.Member
@@ -52,12 +52,12 @@ class JwtAuthenticationFilter(
   }
 
   private fun setAuthentication(member: Member) {
-    val principalDetails = PrincipalDetails(member)
+    val userDetails = CustomUserDetails(member)
 
     val authentication: Authentication = UsernamePasswordAuthenticationToken(
-        principalDetails,
-        principalDetails.password,
-        principalDetails.authorities
+        userDetails,
+        userDetails.password,
+        userDetails.authorities
     )
 
     SecurityContextHolder.getContext().authentication = authentication

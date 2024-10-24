@@ -1,7 +1,7 @@
 package com.example.simpleblog.common.auth.handler
 
 import com.example.simpleblog.common.auth.jwt.JwtProvider
-import com.example.simpleblog.common.auth.details.PrincipalDetails
+import com.example.simpleblog.common.auth.details.CustomUserDetails
 import com.example.simpleblog.common.response.ApiResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
@@ -24,7 +24,7 @@ class LoginSuccessHandler(
       authentication: Authentication
   ) {
     log.info("로그인 성공")
-    val principal = authentication.principal as PrincipalDetails
+    val principal = authentication.principal as CustomUserDetails
     val accessToken = jwtProvider.generateAccessToken(principal.username)
     val refreshToken = jwtProvider.generateRefreshToken(principal.username)
 
